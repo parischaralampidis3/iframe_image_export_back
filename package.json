@@ -1,0 +1,19 @@
+{
+  "name": "iframe_image_export_back",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/parischaralampidis3/iframe_image_export_back.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/parischaralampidis3/iframe_image_export_back/issues"
+  },
+  "homepage": "https://github.com/parischaralampidis3/iframe_image_export_back#readme",
+  "description": ""
+}
