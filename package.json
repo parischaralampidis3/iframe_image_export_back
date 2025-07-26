@@ -18,11 +18,12 @@
     "url": "https://github.com/parischaralampidis3/iframe_image_export_back/issues"
   },
   "homepage": "https://github.com/parischaralampidis3/iframe_image_export_back#readme",
-  "description": "",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "puppeteer": "^24.15.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
-  }
+  },
+  "description": ""
 }
