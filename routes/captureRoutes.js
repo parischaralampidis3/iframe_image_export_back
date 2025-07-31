@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Capture } = require("../middleware/validateInput"); // ✅ Correct path
+const { Capture } = require("../middleware/validateInput");
 
 router.get("/status", (req, res) => {
   res.json({ status: 'ok' });
