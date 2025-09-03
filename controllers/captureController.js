@@ -69,6 +69,8 @@ async function capturePdfFromQuery(req, res) {
   }
 }
 
+
+
 // GET url query-based PNG export
 async function capturePngFromQuery(req, res) {
   const url = req.query.url;
