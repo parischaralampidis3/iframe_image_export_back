@@ -1,7 +1,7 @@
 const { exportPdf, exportPng } = require("../utils/captureScreenShot");
 const { extractIframeSrc } = require("../utils/parseIframe");
 const { Capture } = require("../middleware/validateInput");
-
+const path = require("path")
 // POST body-based PDF export
 async function capturePdfController(req, res) {
   const result = Capture.safeParse(req.body);
@@ -13,7 +13,13 @@ async function capturePdfController(req, res) {
 
   try {
     const pdfPath = await exportPdf(url);
-    return res.download(pdfPath);
+    const pdfFileName = path.basename(pdfPath);
+
+    return res.json({
+      message: "PDF is generated successfully",
+      pdfUrl: `/static/${pdfFileName}`
+    });
+
   } catch (error) {
     console.error("PDF capture error:", error);
     return res.status(500).json({ error: "Server error" });
@@ -31,7 +37,13 @@ async function capturePngController(req, res) {
 
   try {
     const pngPath = await exportPng(url);
-    return res.download(pngPath);
+    const pngFileName = path.basename(pngPath);
+
+    return res.json({
+      message: "PNG is generated successfully",
+      pngUrl: `/static/${pngFileName}`
+    })
+
   } catch (error) {
     console.error("PNG capture error:", error);
     return res.status(500).json({ error: "Server error" });
@@ -62,14 +74,18 @@ async function capturePdfFromQuery(req, res) {
 
   try {
     const pdfPath = await exportPdf(url);
-    return res.download(pdfPath);
+    const pdfFileName = path.basename(pdfPath);
+
+    return res.json({
+      message:"PDF is generated successfully",
+      pdfUrl : `/static/${pdfFileName}`
+    })
+
   } catch (err) {
     console.error("PDF capture error:", err);
     return res.status(500).json({ error: "Server error" });
   }
 }
-
-
 
 // GET url query-based PNG export
 async function capturePngFromQuery(req, res) {
@@ -80,7 +96,13 @@ async function capturePngFromQuery(req, res) {
 
   try {
     const pngPath = await exportPng(url);
-    return res.download(pngPath);
+    const pngFileName = path.basename(pngPath);
+
+    return res.json({
+      message:"PNG is generated successfully",
+      pngUrl:`/static/${pngFileName}`
+    })
+
   } catch (err) {
     console.error("PNG capture error:", err);
     return res.status(500).json({ error: "Server error" });
