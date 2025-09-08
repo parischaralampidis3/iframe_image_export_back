@@ -15,7 +15,6 @@ app.use(cors(
 app.use(express.json());
 
 app.use("/capture", routes);
-app.use("/static",express.static("downloads"));
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);

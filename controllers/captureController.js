@@ -1,7 +1,7 @@
 const { exportPdf, exportPng } = require("../utils/captureScreenShot");
 const { extractIframeSrc } = require("../utils/parseIframe");
 const { Capture } = require("../middleware/validateInput");
-const path = require("path")
+
 // POST body-based PDF export
 async function capturePdfController(req, res) {
   const result = Capture.safeParse(req.body);
@@ -13,13 +13,7 @@ async function capturePdfController(req, res) {
 
   try {
     const pdfPath = await exportPdf(url);
-    const pdfFileName = path.basename(pdfPath);
-
-    return res.json({
-      message: "PDF is generated successfully",
-      pdfUrl: `/static/${pdfFileName}`
-    });
-
+    return res.download(pdfPath);
   } catch (error) {
     console.error("PDF capture error:", error);
     return res.status(500).json({ error: "Server error" });
@@ -37,13 +31,7 @@ async function capturePngController(req, res) {
 
   try {
     const pngPath = await exportPng(url);
-    const pngFileName = path.basename(pngPath);
-
-    return res.json({
-      message: "PNG is generated successfully",
-      pngUrl: `/static/${pngFileName}`
-    })
-
+    return res.download(pngPath);
   } catch (error) {
     console.error("PNG capture error:", error);
     return res.status(500).json({ error: "Server error" });
@@ -65,52 +53,6 @@ async function parseIframeController(req, res) {
   return res.json({ url: src });
 }
 
-//POST real-time PNG capture
-async function capturePngRealTime(req, res) {
-  const result = Capture.safeParse(req.body);
-  if (!result.success) {
-    return res.status(400).json({ message: "Validation Error", errors: result.error.issues });
-  }
-
-  const url = result.data.url;
-
-  try {
-    const pngPath = await exportPng(url);
-    const pngFileName = path.basename(pngPath);
-
-    return res.json({
-      message: "Real-time PNG generated successfully",
-      pngUrl: `/static/${pngFileName}`
-    });
-  } catch (err) {
-    console.error("PNG capture error", err);
-    return res.status(500).json({ error: "Server Error" });
-  }
-}
-
-// POST real-time PDF capture
-async function capturePdfRealTime(req, res) {
-  const result = Capture.safeParse(req.body);
-  if (!result.success) {
-    return res.status(400).json({ message: "Validation Error", errors: result.error.issues });
-  }
-
-  const url = result.data.url;
-
-  try {
-    const pdfPath = await exportPdf(url); // <-- use exportPdf
-    const pdfFileName = path.basename(pdfPath);
-
-    return res.json({
-      message: "Real-time PDF generated successfully",
-      pdfUrl: `/static/${pdfFileName}` // <-- return pdfUrl
-    });
-  } catch (err) {
-    console.error("PDF capture error", err);
-    return res.status(500).json({ error: "Server Error" });
-  }
-}
-
 // GET url query-based PDF export
 async function capturePdfFromQuery(req, res) {
   const url = req.query.url;
@@ -120,18 +62,14 @@ async function capturePdfFromQuery(req, res) {
 
   try {
     const pdfPath = await exportPdf(url);
-    const pdfFileName = path.basename(pdfPath);
-
-    return res.json({
-      message:"PDF is generated successfully",
-      pdfUrl : `/static/${pdfFileName}`
-    })
-
+    return res.download(pdfPath);
   } catch (err) {
     console.error("PDF capture error:", err);
     return res.status(500).json({ error: "Server error" });
   }
 }
+
+
 
 // GET url query-based PNG export
 async function capturePngFromQuery(req, res) {
@@ -142,13 +80,7 @@ async function capturePngFromQuery(req, res) {
 
   try {
     const pngPath = await exportPng(url);
-    const pngFileName = path.basename(pngPath);
-
-    return res.json({
-      message:"PNG is generated successfully",
-      pngUrl:`/static/${pngFileName}`
-    })
-
+    return res.download(pngPath);
   } catch (err) {
     console.error("PNG capture error:", err);
     return res.status(500).json({ error: "Server error" });
@@ -160,7 +92,5 @@ module.exports = {
   capturePngController,
   capturePdfFromQuery,
   capturePngFromQuery,
-  parseIframeController,
-  capturePdfRealTime,
-  capturePngRealTime
+  parseIframeController
 };

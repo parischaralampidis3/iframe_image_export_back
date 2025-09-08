@@ -16,7 +16,7 @@ async function exportPdf(url) {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
-  await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
+  await page.goto(url, { waitUntil: 'networkidle2' });
   await page.waitForSelector('body');
 
   await page.pdf({
@@ -35,7 +35,7 @@ async function exportPng(url) {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
-  await page.goto(url, { waitUntil: 'networkidle2', timeout:60000 });
+  await page.goto(url, { waitUntil: 'networkidle2' });
   await page.waitForSelector('body');
 
   await page.screenshot({
