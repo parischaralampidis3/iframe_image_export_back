@@ -5,7 +5,9 @@ const {
   capturePngController,
   parseIframeController,
   capturePdfFromQuery,
-  capturePngFromQuery
+  capturePngFromQuery,
+  capturePdfRealTime,
+  capturePngRealTime
 } = require("../controllers/captureController");
 const { Capture } = require("../middleware/validateInput");
 
@@ -23,6 +25,8 @@ router.post("/pdf", capturePdfController);
 router.post("/png", capturePngController);
 router.post("/parse", parseIframeController);
 
+router.post("/pdfRealTime", capturePdfRealTime);
+router.post("/pngRealTime", capturePngRealTime);
 
 // For testing validation schema
 router.post("/capture", (req, res) => {
