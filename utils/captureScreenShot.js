@@ -1,50 +1,44 @@
 const puppeteer = require("puppeteer");
-const fs = require("fs");
 const path = require("path");
 
-const downloadsDir = path.resolve(__dirname, "../downloads");
-
-// Ensure downloads folder exists
-if (!fs.existsSync(downloadsDir)) {
-  fs.mkdirSync(downloadsDir);
-}
-
 async function exportPdf(url) {
-  const timestamp = Date.now();
-  const filePath = path.join(downloadsDir, `report-${timestamp}.pdf`);
-
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    headless: "new",
+    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+  });
   const page = await browser.newPage();
 
-  await page.goto(url, { waitUntil: 'networkidle2' });
-  await page.waitForSelector('body');
+  // Go to Power BI report
+  await page.goto(url, { waitUntil: "networkidle2", timeout: 60000 });
 
-  await page.pdf({
-    path: filePath,
-    format: "A4",
-  });
+  // Ensure iframe content is rendered
+  await page.waitForTimeout(5000);
+
+  const pdfPath = path.join(__dirname, "../exports/report.pdf");
+  await page.pdf({ path: pdfPath, format: "A4", printBackground: true });
 
   await browser.close();
-  return filePath; // return path for res.download()
+  return pdfPath;
 }
 
 async function exportPng(url) {
-  const timestamp = Date.now();
-  const filePath = path.join(downloadsDir, `report-${timestamp}.png`);
-
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    headless: "new",
+    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+  });
   const page = await browser.newPage();
 
-  await page.goto(url, { waitUntil: 'networkidle2' });
-  await page.waitForSelector('body');
+  // Go to Power BI report
+  await page.goto(url, { waitUntil: "networkidle2", timeout: 60000 });
 
-  await page.screenshot({
-    path: filePath,
-    fullPage: true,
-  });
+  // Give time for charts to render
+  await page.waitForTimeout(5000);
+
+  const pngPath = path.join(__dirname, "../exports/report.png");
+  await page.screenshot({ path: pngPath, fullPage: true });
 
   await browser.close();
-  return filePath; // return path for res.download()
+  return pngPath;
 }
 
 module.exports = { exportPdf, exportPng };
