@@ -24,7 +24,7 @@
     "express": "^5.1.0",
     "node-fetch": "^3.3.2",
     "puppeteer": "^24.15.0",
-    "puppeteer-core": "^24.18.0",
+    "puppeteer-core": "^24.19.0",
     "zod": "^4.0.10"
   },
   "devDependencies": {

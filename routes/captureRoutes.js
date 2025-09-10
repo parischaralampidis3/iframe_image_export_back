@@ -7,30 +7,16 @@ const {
   capturePdfFromQuery,
   capturePngFromQuery
 } = require("../controllers/captureController");
-const { Capture } = require("../middleware/validateInput");
 
-// GET endpoints for embedding
+// GET endpoints for PDF/PNG from query
 router.get("/getPdf", capturePdfFromQuery);
 router.get("/getPng", capturePngFromQuery);
 
-// Optional health check
-router.get("/status", (req, res) => {
-  res.json({ status: "ok" });
-});
-
-// POST endpoints for manual export
+// POST endpoints for PDF/PNG from request body
 router.post("/pdf", capturePdfController);
 router.post("/png", capturePngController);
+
+// POST endpoint to parse iframe HTML
 router.post("/parse", parseIframeController);
-
-
-// For testing validation schema
-router.post("/capture", (req, res) => {
-  const result = Capture.safeParse(req.body);
-  if (!result.success) {
-    return res.status(400).json({ message: "Validation Error", errors: result.error.issues });
-  }
-  res.json({ message: "Success", data: result.data });
-});
 
 module.exports = router;
