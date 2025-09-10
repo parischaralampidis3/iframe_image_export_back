@@ -26,7 +26,7 @@ async function exportPdf(url) {
 
     try {
         console.log("Navigating to URL:", url);
-        await page.goto(url, { waitUntil: "networkidle2", timeout: 120000 });
+        await page.goto(url, { waitUntil: "networkidle2"});
 
         // Wait for report elements to render (adjust selector as needed)
         await page.waitForSelector(".visualContainer", { timeout: 60000 });
