@@ -1,96 +1,79 @@
-const { exportPdf, exportPng } = require("../utils/captureScreenShot");
-const { extractIframeSrc } = require("../utils/parseIframe");
-const { Capture } = require("../middleware/validateInput");
+const puppeteer = require("puppeteer");
+const path = require("path");
+const fs = require("fs");
 
-// POST body-based PDF export
-async function capturePdfController(req, res) {
-  const result = Capture.safeParse(req.body);
-  if (!result.success) {
-    return res.status(400).json({ message: "Validation Error", errors: result.error.issues });
-  }
-
-  const url = result.data.url;
-
-  try {
-    const pdfPath = await exportPdf(url);
-    return res.download(pdfPath);
-  } catch (error) {
-    console.error("PDF capture error:", error);
-    return res.status(500).json({ error: "Server error" });
-  }
+// Ensure exports folder exists
+const exportsDir = path.join(__dirname, "../exports");
+if (!fs.existsSync(exportsDir)) {
+    fs.mkdirSync(exportsDir, { recursive: true });
 }
 
-// POST body-based PNG export
-async function capturePngController(req, res) {
-  const result = Capture.safeParse(req.body);
-  if (!result.success) {
-    return res.status(400).json({ message: "Validation Error", errors: result.error.issues });
-  }
-
-  const url = result.data.url;
-
-  try {
-    const pngPath = await exportPng(url);
-    return res.download(pngPath);
-  } catch (error) {
-    console.error("PNG capture error:", error);
-    return res.status(500).json({ error: "Server error" });
-  }
+// Helper function to launch browser
+async function launchBrowser() {
+    return puppeteer.launch({
+        headless: "new",
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
 }
 
-// POST iframe HTML, returns extracted src
-async function parseIframeController(req, res) {
-  const { iframe } = req.body;
+// Export PDF from public Power BI report URL
+async function exportPdf(url) {
+    const browser = await launchBrowser();
+    const page = await browser.newPage();
 
-  if (!iframe || typeof iframe !== "string") {
-    return res.status(400).json({ error: "Invalid input iframe" });
-  }
+    // Set a real user-agent to avoid detection
+    await page.setUserAgent(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    );
 
-  const src = extractIframeSrc(iframe);
-  if (!src) {
-    return res.status(400).json({ error: "Could not extract src." });
-  }
-  return res.json({ url: src });
+    try {
+        console.log("Navigating to URL:", url);
+        await page.goto(url, { waitUntil: "networkidle2", timeout: 120000 });
+
+        // Wait for charts and iframes to render
+        await page.waitForTimeout(10000);
+
+        const pdfPath = path.join(exportsDir, "report.pdf");
+        await page.pdf({ path: pdfPath, format: "A4", printBackground: true });
+
+        console.log("PDF exported successfully:", pdfPath);
+        return pdfPath;
+    } catch (err) {
+        console.error("PDF capture error:", err);
+        throw err;
+    } finally {
+        await browser.close();
+    }
 }
 
-// GET url query-based PDF export
-async function capturePdfFromQuery(req, res) {
-  const url = req.query.url;
-  if (!url || typeof url !== "string") {
-    return res.status(400).json({ error: "Missing or invalid url parameter" });
-  }
+// Export PNG from public Power BI report URL
+async function exportPng(url) {
+    const browser = await launchBrowser();
+    const page = await browser.newPage();
 
-  try {
-    const pdfPath = await exportPdf(url);
-    return res.download(pdfPath);
-  } catch (err) {
-    console.error("PDF capture error:", err);
-    return res.status(500).json({ error: "Server error" });
-  }
+    // Set user-agent
+    await page.setUserAgent(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    );
+
+    try {
+        console.log("Navigating to URL:", url);
+        await page.goto(url, { waitUntil: "networkidle2", timeout: 120000 });
+
+        // Wait for charts and iframes to render
+        await page.waitForTimeout(10000);
+
+        const pngPath = path.join(exportsDir, "report.png");
+        await page.screenshot({ path: pngPath, fullPage: true });
+
+        console.log("PNG exported successfully:", pngPath);
+        return pngPath;
+    } catch (err) {
+        console.error("PNG capture error:", err);
+        throw err;
+    } finally {
+        await browser.close();
+    }
 }
 
-
-
-// GET url query-based PNG export
-async function capturePngFromQuery(req, res) {
-  const url = req.query.url;
-  if (!url || typeof url !== "string") {
-    return res.status(400).json({ error: "Missing or invalid url parameter" });
-  }
-
-  try {
-    const pngPath = await exportPng(url);
-    return res.download(pngPath);
-  } catch (err) {
-    console.error("PNG capture error:", err);
-    return res.status(500).json({ error: "Server error" });
-  }
-}
-
-module.exports = {
-  capturePdfController,
-  capturePngController,
-  capturePdfFromQuery,
-  capturePngFromQuery,
-  parseIframeController
-};
+module.exports = { exportPdf, exportPng };
